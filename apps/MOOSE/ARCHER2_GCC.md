@@ -1,9 +1,6 @@
 # Building MOOSE on ARCHER2
 
-Uses the GCC compilers. XDR functionality disabled (XDA is preferred by MOOSE anyway so 
-should not be an issue).
-
-Based on instructions at:
+Uses the GCC compilers. Based on instructions at:
 
  - https://mooseframework.inl.gov/getting_started/installation/hpc_install_moose.html
 
@@ -16,7 +13,8 @@ module load cmake
 
 export CC=cc CXX=CC FC=ftn
 
-
+PRFX=/path/to/build/location
+cd $PRFX
 ```
 
 ## Obtain the source code
@@ -37,18 +35,45 @@ ARCHER2 does not have the `libtirpc` headers installed so we need to disable the
 optional XDR functionality (preferred XDA functionality will still be available).
 
 Edit the `scripts/configure_libmesh.sh` file and **remove** the following line
-(line 68 of the script in the version we tested):
+(line 74 of the script in the version we tested):
 
 ```
                --enable-xdr-required \
 ```
 
+If you wish to enable VTK, add the following to the configure command in `scripts/configure_libmesh.sh`: 
+```
+               --enable-vtk \
+```
+
 ## Build the dependencies
 
-From the base `moose` source directory
+### Build VTK 
+
+If you wish to enable VTK, build the library and add the location of the install to your environment: 
 
 ```
-cd scripts
+cd $PRFX
+mkdir vtk && cd vtk
+
+wget https://vtk.org/files/release/9.6/VTK-9.6.0.tar.gz
+tar -xvf VTK-9.6.0.tar.gz
+mv VTK-9.6.0 source
+
+mkdir build && cd build
+cmake -DCMAKE_INSTALL_PREFIX=$PRFX/vtk/install -DVTK_USE_MPI:BOOL=ON -DVTK_SMP_IMPLEMENTATION_TYPE:STRING=OpenMP -DCMAKE_BUILD_TYPE:STRING=Release ../source 
+cmake --build . -j8
+cmake --install .
+
+export VTKLIB_DIR=$PRFX/vtk/install/lib64 
+export VTKINCLUDE_DIR=$PRFX/vtk/install/include 
+```
+
+
+### Build petsc, libmesh and wasp
+
+```
+cd $PRFX/moose/scripts
 
 export MOOSE_JOBS=6 METHODS=opt
 
@@ -59,24 +84,23 @@ export MOOSE_JOBS=6 METHODS=opt
 
 ## Build MOOSE
 
-From the base `moose` source directory
+### Fix incorrect "build.mk" file
 
-```
-cd test
-make -j 6
-```
-
-## Fix incorrect "build.mk" file
-
-A Fortran flag needs to be added to the compiler configuration.
-
-Edit line 316 in the file `framework/build.mk` to change it to:
-
+A Fortran flag needs to be added to the compiler configuration. This can be done by editting line 316 in the file `$PRFX/moose/framework/build.mk` to change it to:
 ```
 PLUGIN_FLAGS := -shared -fPIC -Wl,-undefined,dynamic_lookup -fallow-argument-mismatch
 ```
 
 (i.e. add the "-fallow-argument-mismatch" flag)
+
+### Now build MOOSE
+
+```
+cd $PRFX/moose/test
+make -j 6
+```
+
+
 
 ## Test MOOSE
 
