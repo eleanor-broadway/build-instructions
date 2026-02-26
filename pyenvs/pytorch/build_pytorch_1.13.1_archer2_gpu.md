@@ -1,6 +1,8 @@
 Instructions for installing PyTorch 1.13.1 for use on the ARCHER2 GPU nodes
 ===========================================================================
 
+**Warning, these instructions are deprecated and may no longer work.**
+
 These instructions show how to install PyTorch 1.13.1 for use on the ARCHER2 GPU nodes (HPE Cray EX, AMD EPYC 7534P, AMD Instinct MI210).
 
 Horovod 0.28.1, a distributed deep learning training framework, is also installed - this package can be used for running PyTorch across multiple GPU nodes.
