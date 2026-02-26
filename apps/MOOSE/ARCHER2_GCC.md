@@ -66,7 +66,8 @@ cmake --build . -j8
 cmake --install .
 
 export VTKLIB_DIR=$PRFX/vtk/install/lib64 
-export VTKINCLUDE_DIR=$PRFX/vtk/install/include 
+export VTKINCLUDE_DIR=$PRFX/vtk/install/include/vtk-9.6
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$PRFX/vtk/install/lib64 
 ```
 
 
@@ -78,7 +79,7 @@ cd $PRFX/moose/scripts
 export MOOSE_JOBS=6 METHODS=opt
 
 ./update_and_rebuild_petsc.sh CC=cc CXX=CC FC=ftn
-./update_and_rebuild_libmesh.sh CC=cc CXX=CC FC=ftn
+./update_and_rebuild_libmesh.sh CC=cc CXX=CC FC=ftn --with-vtk-lib=$VTKLIB_DIR --with-vtk-include=$VTKINCLUDE_DIR
 ./update_and_rebuild_wasp.sh
 ```
 
@@ -117,7 +118,7 @@ one that you have access to on ARCHER2). Once the file is created, submit with
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=8
 #SBATCH --cpus-per-task=1
-#SBATCH --time=12:0:0
+#SBATCH --time=1:0:0
 #SBATCH --account=[replace with valid account]
 #SBATCH --partition=standard
 #SBATCH --qos=standard
