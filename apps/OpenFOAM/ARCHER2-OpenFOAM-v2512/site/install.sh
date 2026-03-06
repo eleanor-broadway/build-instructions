@@ -8,10 +8,10 @@ source ./site/version.sh
 # This takes a few minutes.
 
 wget https://sourceforge.net/projects/openfoam/files/${version}/OpenFOAM-${version}.tgz
-wget https://sourceforge.net/projects/openfoam/files/${version}/ThirdParty-${version}.tgz
+wget https://sourceforge.net/projects/openfoam/files/${version}/ThirdParty-${version}.tar.gz
 
 tar zxf OpenFOAM-${version}.tgz
-tar zxf ThirdParty-${version}.tgz
+tar zxf ThirdParty-${version}.tar.gz
 
 
 # Patch various issues
